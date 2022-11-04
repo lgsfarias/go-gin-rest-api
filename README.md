@@ -63,7 +63,7 @@ cp .env.example .env
 
 <br/>
 
-## 🏃🏽 Como rodar o projeto
+## 🏃🏽 Running the project
 
 Up the database
 
