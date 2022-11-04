@@ -2,6 +2,7 @@ package database
 
 import (
 	"github.com/lgsfarias/go-gin-rest-api/models"
+	"github.com/lgsfarias/go-gin-rest-api/setup"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -12,7 +13,7 @@ var (
 )
 
 func Connect() {
-	dsn := "host=localhost user=root password=root dbname=root port=5432 sslmode=disable TimeZone=America/Sao_Paulo"
+	dsn := setup.GetDotEnv("DB_DSN")
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
