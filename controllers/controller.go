@@ -62,3 +62,14 @@ func UpdateStudent(c *gin.Context) {
 	database.DB.Save(&student)
 	c.JSON(http.StatusOK, gin.H{"data": student})
 }
+
+func GetStudentByCpf(c *gin.Context) {
+	cpf := c.Params.ByName("cpf")
+	var student models.Student
+	database.DB.Where("cpf = ?", cpf).First(&student)
+	if student.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"data": "No student found!"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": student})
+}
