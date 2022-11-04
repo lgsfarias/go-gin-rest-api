@@ -8,21 +8,6 @@ import (
 	"github.com/lgsfarias/go-gin-rest-api/models"
 )
 
-func ShowAllStudents(c *gin.Context) {
-	var students []models.Student
-	database.DB.Find(&students)
-	c.JSON(200, students)
-
-}
-
-func Greet(c *gin.Context) {
-	name := c.Params.ByName("name")
-
-	c.JSON(200, gin.H{
-		"message": "Hello " + name,
-	})
-}
-
 func CreateStudent(c *gin.Context) {
 	var student models.Student
 	if err := c.ShouldBindJSON(&student); err != nil {
@@ -30,5 +15,22 @@ func CreateStudent(c *gin.Context) {
 		return
 	}
 	database.DB.Create(&student)
+	c.JSON(http.StatusOK, gin.H{"data": student})
+}
+
+func ShowAllStudents(c *gin.Context) {
+	var students []models.Student
+	database.DB.Find(&students)
+	c.JSON(http.StatusOK, students)
+}
+
+func GetStudentById(c *gin.Context) {
+	id := c.Params.ByName("id")
+	var student models.Student
+	database.DB.First(&student, id)
+	if student.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"data": "No student found!"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"data": student})
 }
