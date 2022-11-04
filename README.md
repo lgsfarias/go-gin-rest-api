@@ -41,7 +41,7 @@ To run this project, you will need to have [Go](https://golang.org/), [Docker](h
 
 <br/>
 
-## 🚀 Installation
+## 🧰 Installation
 
 Clone the repository
 
