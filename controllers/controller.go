@@ -1,11 +1,12 @@
 package controllers
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/lgsfarias/go-gin-rest-api/models"
+)
 
 func ShowAllStudents(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"students": []string{"John", "Paul", "George", "Ringo"},
-	})
+	c.JSON(200, models.Students)
 }
 
 func Greet(c *gin.Context) {
