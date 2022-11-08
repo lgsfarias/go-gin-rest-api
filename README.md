@@ -20,6 +20,7 @@ This project was built during a Golang course on the [Alura](https://www.alura.c
 - [x] Create an API RESTful with Go and Gin
 - [x] Integrate Go API with a database running on Docker
 - [x] Connect to a database using GORM
+- [x] Create automated tests for the API
 
 <br/>
 
@@ -81,6 +82,12 @@ run the project
 
 ```sh
 ./go-gin-rest-api
+```
+
+run tests
+
+```sh
+go test
 ```
 
 <br/>
