@@ -1,18 +1,40 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lgsfarias/go-gin-rest-api/controllers"
+	"github.com/lgsfarias/go-gin-rest-api/database"
+	"github.com/lgsfarias/go-gin-rest-api/models"
 	"github.com/stretchr/testify/assert"
 )
 
+var ID int
+
 func RoutesSetup() *gin.Engine {
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	return r
+}
+
+func CreateStudentMock() *models.Student {
+	student := models.Student{
+		Name:  "John Doe",
+		Email: "john@john.com",
+		CPF:   "12345678910",
+	}
+	database.DB.Create(&student)
+	ID = int(student.ID)
+	return &student
+}
+
+func DeleteStudentMock() {
+	var student models.Student
+	database.DB.Delete(&student, ID)
 }
 
 func TestVerifyStatusCodeHello(t *testing.T) {
@@ -38,4 +60,34 @@ func TestVerifyBodyHello(t *testing.T) {
 	r.ServeHTTP(resp, req)
 	responseMock := `{"message":"Hello World!"}`
 	assert.Equal(t, responseMock, resp.Body.String(), "OK response is expected")
+}
+
+func TestGetAllStudents(t *testing.T) {
+	database.Connect()
+	r := RoutesSetup()
+	r.GET("/students", controllers.ShowAllStudents)
+	req, err := http.NewRequest("GET", "/students", nil)
+	if err != nil {
+		t.Fatalf("Could not create request: %v", err)
+	}
+	resp := httptest.NewRecorder()
+	r.ServeHTTP(resp, req)
+	assert.Equal(t, http.StatusOK, resp.Code, "OK response is expected")
+}
+
+func TestGetStudentByCpf(t *testing.T) {
+	database.Connect()
+	student := CreateStudentMock()
+	fmt.Println(student.CPF)
+	defer DeleteStudentMock()
+	r := RoutesSetup()
+	r.GET("/students/cpf/:cpf", controllers.GetStudentByCpf)
+	req, err := http.NewRequest("GET", "/students/cpf/"+student.CPF, nil)
+	if err != nil {
+		t.Fatalf("Could not create request: %v", err)
+	}
+	resp := httptest.NewRecorder()
+	r.ServeHTTP(resp, req)
+	assert.Equal(t, http.StatusOK, resp.Code, "OK response is expected")
+	assert.Contains(t, resp.Body.String(), student.CPF, "CPF is expected")
 }
