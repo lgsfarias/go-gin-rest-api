@@ -122,3 +122,19 @@ func TestGetStudentById(t *testing.T) {
 	assert.Equal(t, student.Email, respMock.Data.Email, "Email is expected")
 	assert.Equal(t, student.CPF, respMock.Data.CPF, "CPF is expected")
 }
+
+func TestDeleteStudent(t *testing.T) {
+	database.Connect()
+	CreateStudentMock()
+
+	r := RoutesSetup()
+	r.DELETE("/students/:id", controllers.DeleteStudent)
+	req, err := http.NewRequest("DELETE", "/students/"+fmt.Sprintf("%d", ID), nil)
+	if err != nil {
+		t.Fatalf("Could not create request: %v", err)
+	}
+
+	resp := httptest.NewRecorder()
+	r.ServeHTTP(resp, req)
+	assert.Equal(t, http.StatusOK, resp.Code, "OK response is expected")
+}
