@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -137,4 +138,45 @@ func TestDeleteStudent(t *testing.T) {
 	resp := httptest.NewRecorder()
 	r.ServeHTTP(resp, req)
 	assert.Equal(t, http.StatusOK, resp.Code, "OK response is expected")
+}
+
+func TestUpdateStudent(t *testing.T) {
+	database.Connect()
+	student := CreateStudentMock()
+	defer DeleteStudentMock()
+	r := RoutesSetup()
+	r.PATCH("/students/:id", controllers.UpdateStudent)
+
+	student.Name = "John Doe Updated"
+	student.Email = "johnupdated@john.com"
+	student.CPF = "12345678911"
+
+	jsonStudent, err := json.Marshal(student)
+	if err != nil {
+		t.Fatalf("Could not marshal student: %v", err)
+	}
+
+	req, err := http.NewRequest("PATCH", "/students/"+fmt.Sprintf("%d", ID), bytes.NewBuffer(jsonStudent))
+	if err != nil {
+		t.Fatalf("Could not create request: %v", err)
+	}
+
+	resp := httptest.NewRecorder()
+	r.ServeHTTP(resp, req)
+
+	type response struct {
+		Data models.Student `json:"data"`
+	}
+	var respMock response
+
+	err = json.Unmarshal(resp.Body.Bytes(), &respMock)
+	if err != nil {
+		t.Fatalf("Could not unmarshal response: %v", err)
+	}
+
+	assert.Equal(t, http.StatusOK, resp.Code, "OK response is expected")
+	assert.Equal(t, ID, int(respMock.Data.ID), "ID is expected")
+	assert.Equal(t, student.Name, respMock.Data.Name, "Name is expected")
+	assert.Equal(t, student.Email, respMock.Data.Email, "Email is expected")
+	assert.Equal(t, student.CPF, respMock.Data.CPF, "CPF is expected")
 }
