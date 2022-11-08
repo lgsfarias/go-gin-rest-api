@@ -26,3 +26,16 @@ func TestVerifyStatusCodeHello(t *testing.T) {
 	r.ServeHTTP(resp, req)
 	assert.Equal(t, http.StatusOK, resp.Code, "OK response is expected")
 }
+
+func TestVerifyBodyHello(t *testing.T) {
+	r := RoutesSetup()
+	r.GET("/", controllers.Hello)
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatalf("Could not create request: %v", err)
+	}
+	resp := httptest.NewRecorder()
+	r.ServeHTTP(resp, req)
+	responseMock := `{"message":"Hello World!"}`
+	assert.Equal(t, responseMock, resp.Body.String(), "OK response is expected")
+}
