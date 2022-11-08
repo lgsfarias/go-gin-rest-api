@@ -8,6 +8,10 @@ import (
 	"github.com/lgsfarias/go-gin-rest-api/models"
 )
 
+func Hello(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "Hello World!"})
+}
+
 func CreateStudent(c *gin.Context) {
 	var student models.Student
 	if err := c.ShouldBindJSON(&student); err != nil {
