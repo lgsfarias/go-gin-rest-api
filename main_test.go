@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -90,4 +91,34 @@ func TestGetStudentByCpf(t *testing.T) {
 	r.ServeHTTP(resp, req)
 	assert.Equal(t, http.StatusOK, resp.Code, "OK response is expected")
 	assert.Contains(t, resp.Body.String(), student.CPF, "CPF is expected")
+}
+
+func TestGetStudentById(t *testing.T) {
+	database.Connect()
+	student := CreateStudentMock()
+	defer DeleteStudentMock()
+	r := RoutesSetup()
+	r.GET("/students/:id", controllers.GetStudentById)
+
+	req, err := http.NewRequest("GET", "/students/"+fmt.Sprintf("%d", ID), nil)
+	if err != nil {
+		t.Fatalf("Could not create request: %v", err)
+	}
+	resp := httptest.NewRecorder()
+	r.ServeHTTP(resp, req)
+
+	type response struct {
+		Data models.Student `json:"data"`
+	}
+	var respMock response
+	err = json.Unmarshal(resp.Body.Bytes(), &respMock)
+	if err != nil {
+		t.Fatalf("Could not unmarshal response: %v", err)
+	}
+
+	assert.Equal(t, http.StatusOK, resp.Code, "OK response is expected")
+	assert.Equal(t, ID, int(respMock.Data.ID), "ID is expected")
+	assert.Equal(t, student.Name, respMock.Data.Name, "Name is expected")
+	assert.Equal(t, student.Email, respMock.Data.Email, "Email is expected")
+	assert.Equal(t, student.CPF, respMock.Data.CPF, "CPF is expected")
 }
